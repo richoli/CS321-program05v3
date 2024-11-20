@@ -3,7 +3,8 @@
 #include <cmath>
 #include <vector>
 #include <typeinfo>
-// #include "genBST.h"
+#include "genBST.h"
+#include "Node.h"
 
 using namespace std;
 double distance ( double lat1, double lon1, double lat2,  double lon2)
@@ -19,6 +20,12 @@ double distance ( double lat1, double lon1, double lat2,  double lon2)
     return d;
 }
 
+
+
+
+/**
+ * This option allows the user to directly compute the distances between two sets of coordinates
+ */
 void option_1 () {
     double lat1, lon1, lat2, lon2;
     cout << "Enter the coordinates of the first point:" << endl;
@@ -28,8 +35,94 @@ void option_1 () {
     cout << "Distance between points (" << lat1 << "," << lon1 << ") and ("<< lat2 << "," << lon2 << ") is " << distance(lat1, lon1, lat2, lon2) << endl;
 }
 
-void option_2 () {}
-void option_3 () {}
+/**
+ * This option allows the user to directly enter a single set of coordinates, and return the nearest
+ * city, with its distance from that location.
+ */
+template<class T>
+void option_2 (BST<T>* tree) {
+    double lat, lon;
+    cout << "Enter the coordinates (lat, lon)" << endl;
+    cout << "Enter the latitude: ";
+    cin >> lat;
+    cout << "\nEnter the longitude: ";
+    cin >> lon;
+}
+
+/**
+ * Prompts the user to provide the name of the city and its coordinates (lat,lon).
+ * Inserts city into the tree (if it isn't there already).
+ * User has two options:
+ *        -Find the nearest (other) city in the tree and report its distance from the given city.
+ *        -Find and list the names and distances of all cities within a user-provided
+ *         distance r in miles from the given city.
+ */
+
+template<class T>
+void option_3choice1(BST<T>* tree) {
+    cout << "lol" << endl;
+}
+
+template<class T>
+void option_3choice2(BST<T>* tree) {
+    cout << "lol" << endl;
+}
+
+template<class T>
+void option_3choiceSet(BST<T>* tree) {
+    bool valid = true;
+    int choice;
+    while (valid) {
+        cout << "======================================================\n(1) Find the nearest (other) city in the tree.\n(2) List the names of all the cities and their distances from a given distance r.\n======================================================\n"
+                "Select an option (1-2): ";
+        cin >> choice;
+        switch (choice) {
+            case 1:
+                option_3choice1(tree);
+                valid = false;
+                break;
+            case 2:
+                option_3choice2(tree);
+                valid = false;
+                break;
+            default:
+                cout << "\n\n\n\n";
+                cout << "Invalid option, please try again..." << endl;
+                break;
+
+        }
+
+    }
+
+}
+
+
+
+template<class T>
+void option_3 (BST<T>* tree) {
+    string stateName;
+    double lat,lon;
+    cout << "Enter the name of the state:" << endl; ;
+    cin >> stateName;
+    cout << "Enter it's latitude: " << endl;
+    cin >> lat;
+    cout << "Enter it's longitude: " << endl;
+    cin >> lon;
+
+    Node state(stateName,lat,lon);
+    Node* result = tree->search(state);
+    // if (result == NULL) {
+    //     tree->insert(state);
+    //     option_3choiceSet(tree);
+    // }
+    // else {
+    //     cout << "City already exists, please provide another city." << endl;
+    // }
+    if (result == nullptr) {
+        cout << "City already exists." << endl;
+    }
+    option_3choiceSet(tree);
+}
 
 void read_file() {
     ifstream inputFile("states.txt");
@@ -99,10 +192,8 @@ void splitState(string line, string& stateName, double& lat, double& lon) {
     lon = stod(line);
 };
 
-int main() {
-
-    // std::string filename = "states.txt";
-
+template<class T>
+void fillUpTree(BST<T>*tree) {
     string line;
     ifstream inputFile("states.txt");
     while (getline(inputFile,line)) {
@@ -110,82 +201,87 @@ int main() {
             string stateName;
             double lat, lon;
             splitState(line, stateName, lat, lon);
-            cout << "City Name: " << stateName << endl;
-            cout << "Latitude: " << lat << endl;
-            cout << "Longitude: " << lon << endl << endl;
+            Node node(stateName,lat,lon);
+            tree->insert(node);
         }
-
     }
-
-
-    // bool state = true;
-    // while (state) {
-    //     int option;
-    //     cout << "\n----------- [ Options ] ----------- \n(1) Calculate Distance between two cities.\n(4) Exit Program.\n-----------------------------------\nEnter the a number : ";
-    //     cin >> option;
-    //     switch (option) {
-    //         case 1:
-    //             option_1();
-    //         break;
-    //         case 2:
-    //             option_2();
-    //         break;
-    //         case 3:
-    //             option_3();
-    //         break;
-    //         case 4:
-    //             state = false;
-    //         default:
-    //             cout << "\n\n\nInvalid option: Please try again." << endl;
-    //         break;
-    //     }
-    // }
-    //
-    // return 0;
 }
 
-// ifstream inputFile("light_brigade.txt"); // Open the file
-//
-// if (!inputFile) { // Check if the file opened successfully
-//     cerr << "Error opening file!" << endl;
-//     return 1; // Exit with error code
-// }
-//
-// string line; // line to be parsed.
-// int lineNum = 0; // Marks line number
-// BST<Node> wordTree;
-// Node* match;
-// while (getline(inputFile, line)) { // Read line by line
-//     vector<string> tokens; //contains tokens
-//     lineNum++;
-//
-//     //Ignores empty lines and comments.
-//     if (line.find('#') == string::npos && !line.empty()) {
-//
-//         //converts all the words in a given line into lower case.
-//         transform(line.begin(), line.end(), line.begin(), ::tolower);
-//
-//         //splits line.
-//         splitLine(line, tokens, ' ');
-//
-//         //Adds each word found in the line to the tree.
-//         for (auto i : tokens) {
-//             Node node(i);
-//
-//             match = wordTree.search(node);
-//
-//             //Checks to see if there is already a duplicate of the Node in the tree.
-//             if(match != nullptr) {
-//
-//                 //If so, it adds the found line number unto the set of line numbers in that given node.
-//                 match->addLineNumber(lineNum);
-//             }
-//             else {
-//
-//                 //Otherwise it creates a new node(word) in the tree and adds the current line number to that node.
-//                 node.addLineNumber(lineNum);
-//                 wordTree.insert(node);
-//             }
-//         }
+template<class T>
+void runProgram(BST<T>*tree) {
+    bool state = true;
+    while (state) {
+        int option;
+        cout << "\n----------- [ Options ] ----------- \n(1) Calculate Distance between two cities.\n(2) Find the nearest city from a given set of coordinate. \n(3) Find the nearest city or the nearest set of cities "
+                "from the city provided."
+                "\n(4) Exit Program.\n-----------------------------------\nSelect an option (1-4): ";
+        cin >> option;
+        switch (option) {
+            case 1:
+                option_1();
+            break;
+            case 2:
+                option_2(tree);
+            break;
+            case 3:
+                option_3(tree);
+            break;
+            case 4:
+                state = false;
+                break;
+            case 5:
+                tree->breadthFirst();
+            default:
+                cout << "Invalid option: Please try again.\n\n\n" << endl;
+            break;
+        }
+    }
+}
+
+int main() {
+    string line;
+    BST<Node> states;
+    fillUpTree(&states);
+    states.breadthFirst();
+    runProgram(&states);
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// bool state = true;
+// while (state) {
+//     int option;
+//     cout << "\n----------- [ Options ] ----------- \n(1) Calculate Distance between two cities.\n(4) Exit Program.\n-----------------------------------\nEnter the a number : ";
+//     cin >> option;
+//     switch (option) {
+//         case 1:
+//             option_1();
+//         break;
+//         case 2:
+//             option_2(&states);
+//         break;
+//         case 3:
+//             option_3(&states);
+//         break;
+//         case 4:
+//             state = false;
+//         default:
+//             cout << "\n\n\nInvalid option: Please try again." << endl;
+//         break;
 //     }
 // }
